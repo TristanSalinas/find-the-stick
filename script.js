@@ -1,3 +1,5 @@
+const BAR_NUMBER = 100;
+
 function storageController() {
   let cache = JSON.parse(localStorage.getItem("score")) || [];
 
@@ -128,8 +130,10 @@ function displayController(boardArray, storage) {
 }
 
 function createBoardArray() {
-  const numberToFind = Math.floor(Math.random() * 100);
-  return Array.from({ length: 100 }, (_, i) => Math.sign(i - numberToFind));
+  const numberToFind = Math.floor(Math.random() * BAR_NUMBER);
+  return Array.from({ length: BAR_NUMBER }, (_, i) =>
+    Math.sign(i - numberToFind)
+  );
 }
 
 function newGame(storage) {
