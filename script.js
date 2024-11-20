@@ -54,7 +54,7 @@ function displayController(boardArray, storage) {
       const bar = document.createElement("div");
       bar.classList.add("bar", "bar--active");
       bar.dataset.index = index;
-      bar.dataset.value = value;
+      //bar.dataset.value = value;
       fragment.appendChild(bar);
     });
 
@@ -66,15 +66,15 @@ function displayController(boardArray, storage) {
     if (!bar.classList.contains("bar--active")) return;
 
     const index = parseInt(bar.dataset.index);
-    const value = parseInt(bar.dataset.value);
+    //const value = parseInt(bar.dataset.value);
 
     incrementTurnCounter();
 
-    if (value === -1) {
+    if (boardArray[index] === -1) {
       removeLeftSide(index);
-    } else if (value === 1) {
+    } else if (boardArray[index] === 1) {
       removeRightSide(index);
-    } else if (value === 0) {
+    } else if (boardArray[index] === 0) {
       handleWin(index);
     }
   });
