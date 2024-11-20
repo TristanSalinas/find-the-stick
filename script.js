@@ -50,10 +50,11 @@ function displayController(boardArray, storage) {
   function renderBars() {
     const fragment = document.createDocumentFragment();
 
-    boardArray.forEach((value, index) => {
+    boardArray.forEach((_, index) => {
       const bar = document.createElement("div");
       bar.classList.add("bar", "bar--active");
       bar.dataset.index = index;
+      bar.style.setProperty("--delay", -((index / 10) % 10) + "s");
       //bar.dataset.value = value;
       fragment.appendChild(bar);
     });
@@ -92,6 +93,7 @@ function displayController(boardArray, storage) {
     for (let i = 0; i <= index; i++) {
       const bar = container.children[i];
       bar.classList.remove("bar--active");
+      bar.style.setProperty("animation-play-state", "paused");
     }
   }
 
@@ -99,6 +101,7 @@ function displayController(boardArray, storage) {
     for (let i = boardArray.length - 1; i >= index; i--) {
       const bar = container.children[i];
       bar.classList.remove("bar--active");
+      bar.style.setProperty("animation-play-state", "paused");
     }
   }
 
