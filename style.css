@@ -42,7 +42,7 @@ h1 {
   flex: 1;
   height: 100%;
   background-color: rgb(73, 73, 80);
-  transition: background-color 2s ease;
+  transition: background-color 0.5s ease;
   border: 1px solid black;
   animation: up-and-down 5s infinite ease-in-out;
   animation-delay: var(--delay);
