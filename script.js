@@ -106,7 +106,7 @@ function displayController(boardArray, storage) {
   function actualiseStats() {
     document.querySelector(".stats__best").textContent = storage.getBestScore();
     document.querySelector(".stats__average").textContent =
-      storage.getAverage();
+      Math.round(storage.getAverage() * 100) / 100;
   }
 }
 
