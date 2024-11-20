@@ -1,28 +1,31 @@
 function storageController() {
+  let cache = JSON.parse(localStorage.getItem("score")) || [];
+
+  const syncWithStorage = () => {
+    localStorage.setItem("score", JSON.stringify(cache));
+  };
+
   const store = (value) => {
-    let scores = JSON.parse(localStorage.getItem("score")) || [];
-    scores.push(value);
-    localStorage.setItem("score", JSON.stringify(scores));
+    cache.push(value);
+    syncWithStorage();
   };
 
   const getStoredValues = () => {
-    const scores = JSON.parse(localStorage.getItem("score")) || [];
-    return scores;
+    return [...cache];
   };
 
   const getBestScore = () => {
-    const scores = getStoredValues();
-
-    return scores.reduce((min, current) => {
-      return current < min ? current : min;
-    }, scores[0]);
+    return cache.length
+      ? cache.reduce(
+          (min, current) => (current < min ? current : min),
+          cache[0]
+        )
+      : null;
   };
 
   const getAverage = () => {
-    const scores = getStoredValues();
-
-    return scores.length
-      ? scores.reduce((sum, current) => sum + current, 0) / scores.length
+    return cache.length
+      ? cache.reduce((sum, current) => sum + current, 0) / cache.length
       : 0;
   };
 
@@ -38,44 +41,44 @@ function displayController(boardArray, storage) {
   const container = document.querySelector(".bar-container");
   const newGameBtn = document.querySelector(".new-game-btn");
   let counterP = document.querySelector(".move-counter");
-  container.innerHTML = "";
+
   let counter = 0;
   counterP.textContent = "Nombre de coups joués : " + counter;
-  actualiseStats();
-  newGameBtn.addEventListener("click", () => {
-    newGame(storage);
-  });
-  let barArray = boardArray.map((element, index) => {
-    const bar = document.createElement("div");
-    bar.classList.add("bar", "bar--active");
-    switch (element) {
-      case -1:
-        bar.addEventListener("click", (e) => {
-          if (e.target.classList.contains("bar--active")) {
-            incrementTurnCounter();
-            removeLeftSide(index);
-          }
-        });
-        break;
-      case 0:
-        bar.addEventListener("click", (e) => {
-          if (e.target.classList.contains("bar--active")) {
-            incrementTurnCounter();
-            handleWin(index);
-          }
-        });
-        break;
-      case 1:
-        bar.addEventListener("click", (e) => {
-          if (e.target.classList.contains("bar--active")) {
-            incrementTurnCounter();
-            removeRightSide(index);
-          }
-        });
-        break;
+
+  function renderBars() {
+    const fragment = document.createDocumentFragment();
+
+    boardArray.forEach((value, index) => {
+      const bar = document.createElement("div");
+      bar.classList.add("bar", "bar--active");
+      bar.dataset.index = index;
+      bar.dataset.value = value;
+      fragment.appendChild(bar);
+    });
+
+    container.replaceChildren(fragment);
+  }
+
+  container.addEventListener("click", (e) => {
+    const bar = e.target;
+    if (!bar.classList.contains("bar--active")) return;
+
+    const index = parseInt(bar.dataset.index);
+    const value = parseInt(bar.dataset.value);
+
+    incrementTurnCounter();
+
+    if (value === -1) {
+      removeLeftSide(index);
+    } else if (value === 1) {
+      removeRightSide(index);
+    } else if (value === 0) {
+      handleWin(index);
     }
-    container.appendChild(bar);
-    return bar;
+  });
+
+  newGameBtn.addEventListener("click", () => {
+    startNewGame();
   });
 
   function incrementTurnCounter() {
@@ -85,20 +88,23 @@ function displayController(boardArray, storage) {
 
   function removeLeftSide(index) {
     for (let i = 0; i <= index; i++) {
-      barArray[i].classList.remove("bar--active");
+      const bar = container.children[i];
+      bar.classList.remove("bar--active");
     }
   }
 
   function removeRightSide(index) {
-    for (let i = 99; i >= index; i--) {
-      barArray[i].classList.remove("bar--active");
+    for (let i = boardArray.length - 1; i >= index; i--) {
+      const bar = container.children[i];
+      bar.classList.remove("bar--active");
     }
   }
 
   function handleWin(index) {
-    removeRightSide(index);
     removeLeftSide(index);
-    barArray[index].classList.add("bar--won");
+    removeRightSide(index);
+    const bar = container.children[index];
+    bar.classList.add("bar--won");
     storage.store(counter);
     actualiseStats();
   }
@@ -108,22 +114,30 @@ function displayController(boardArray, storage) {
     document.querySelector(".stats__average").textContent =
       Math.round(storage.getAverage() * 100) / 100;
   }
+
+  function startNewGame() {
+    boardArray = createBoardArray();
+    counter = 0;
+    counterP.textContent = "Nombre de coups joués : " + counter;
+    renderBars();
+    actualiseStats();
+  }
+
+  renderBars();
+  actualiseStats();
 }
 
 function createBoardArray() {
   const numberToFind = Math.floor(Math.random() * 100);
-  let boardArray = [];
-  for (let i = 0; i < 100; i++) {
-    boardArray.push(Math.sign(i - numberToFind));
-  }
-  return boardArray;
+  return Array.from({ length: 100 }, (_, i) => Math.sign(i - numberToFind));
 }
 
 function newGame(storage) {
-  const game = displayController(createBoardArray(), storage);
+  const boardArray = createBoardArray();
+  displayController(boardArray, storage);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  storage = storageController();
+  const storage = storageController();
   newGame(storage);
 });
