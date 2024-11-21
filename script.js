@@ -54,7 +54,7 @@ function displayController(boardArray, storage) {
       const bar = document.createElement("div");
       bar.classList.add("bar", "bar--active");
       bar.dataset.index = index;
-      bar.style.setProperty("--delay", -((index / 10) % 10) + "s");
+      bar.style.setProperty("--delay", -((index / 10)) + "s");
       //bar.dataset.value = value;
       fragment.appendChild(bar);
     });
